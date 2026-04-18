@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>黑客接单终端</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background-color: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; padding-top: 50px; overflow: hidden; }
+        #screen { border: 2px solid #0f0; padding: 20px; margin: 0 auto; width: 80%; min-height: 200px; box-shadow: 0 0 15px #0f0; text-align: left; }
+        h1 { text-shadow: 0 0 5px #0f0; }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <h1>SYSTEM STATUS: <span id="status">ONLINE</span></h1>
+    <div id="screen">
+        > 初始化系统...<br>
+        > 等待数据包...
+    </div>
+    <p class="blink">_</p>
+
+    <script>
+        // 每隔1秒向服务器询问有没有新订单
+        setInterval(function() {
+            fetch('/get_order')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('screen').innerHTML = 
+                    "> 状态: " + data.status.toUpperCase() + "<br><br>" +
+                    "> 内容: " + data.msg + "<br><br>" +
+                    "> 时间: " + data.time;
+            });
+        }, 1000);
+    </script>
+</body>
+</html>
