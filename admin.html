@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老板接单后台</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background-color: #f0f2f5; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { margin: 0; color: #333; }
+        
+        /* 订单卡片样式 */
+        .order-list { display: flex; flex-direction: column; gap: 15px; }
+        .order-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid #ff5722; /* 橙色左边条 */
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .order-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .order-id { font-weight: bold; color: #333; }
+        .order-time { color: #999; font-size: 0.8rem; }
+        
+        .order-items { margin-bottom: 15px; }
+        .item-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        
+        .order-total { text-align: right; font-size: 1.2rem; font-weight: bold; color: #ff5722; margin-bottom: 15px; }
+        
+        .btn-group { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-accept { background-color: #4caf50; color: white; }
+        .btn-delete { background-color: #f44336; color: white; }
+
+        .empty-state { text-align: center; color: #999; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>👨‍🍳 老板接单台</h1>
+        <button onclick="refreshOrders()" style="padding: 5px 10px;">刷新列表</button>
+    </header>
+
+    <div id="order-container" class="order-list">
+        <!-- 订单会显示在这里 -->
+    </div>
+
+    <script>
+        // 1. 获取订单数据
+        function loadOrders() {
+            const container = document.getElementById('order-container');
+            // 从本地存储读取订单
+            const savedOrders = localStorage.getItem('my_shop_orders');
+            const orders = savedOrders ? JSON.parse(savedOrders) : [];
+
+            container.innerHTML = ''; // 清空当前列表
+
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="empty-state">暂无新订单，去喝杯茶吧 ☕</div>';
+                return;
+            }
+
+            // 倒序显示（新订单在上面）
+            orders.reverse().forEach((order, index) => {
+                const card = document.createElement('div');
+                card.className = 'order-card';
+                
+                // 计算真实的索引（因为倒序了）
+                const realIndex = orders.length - 1 - index;
+
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="item-row">
+                            <span>${item.name}</span>
+                            <span>¥${item.price.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="order-header">
+                        <span class="order-id">订单 #${order.id}</span>
+                        <span class="order-time">${order.time}</span>
+                    </div>
+                    <div class="order-items">
+                        ${itemsHtml}
+                    </div>
+                    <div class="order-total">总计: ¥${order.total.toFixed(2)}</div>
+                    <div class="btn-group">
+                        <button class="btn btn-accept" onclick="acceptOrder(${realIndex})">✅ 接单/完成</button>
+                        <button class="btn btn-delete" onclick="deleteOrder(${realIndex})">❌ 删除</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 2. 接单/完成功能
+        window.acceptOrder = function(index) {
+            if(confirm('确认这个订单已经完成了吗？')) {
+                const savedOrders = localStorage.getItem('my_shop_orders');
+                const orders = savedOrders ? JSON.parse(savedOrders) : [];
+                
+                // 移除该订单
+                orders.splice(index, 1);
+                
+                // 保存回去
+                localStorage.setItem('my_shop_orders', JSON.stringify(orders));
+                
+                loadOrders(); // 重新渲染
+            }
+        };
+
+        // 3. 删除功能
+        window.deleteOrder = function(index) {
+            if(confirm('确定要删除这个订单吗？')) {
+                const savedOrders = localStorage.getItem('my_shop_orders');
+                const orders = savedOrders ? JSON.parse(savedOrders) : [];
+                orders.splice(index, 1);
+              localStorage.setItem('my_shop_orders', JSON.stringify(orders));
+                loadOrders();
+            }
+        };
+
+        // 4. 刷新按钮
+        window.refreshOrders = function() {
+            loadOrders();
+        };
+
+        // 页面加载时运行
+        loadOrders();
+    </script>
+</body>
+</html>
+            
