@@ -1,112 +1,46 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>快乐水小卖部 - 点单</title>
-    <style>
-        body { font-family: -apple-system, sans-serif; background-color: #f5f5f5; margin: 0; padding-bottom: 100px; }
-        header { background: #333; color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; }
-        .menu-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
-        .item-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .item-img { width: 100%; height: 120px; object-fit: cover; background: #eee; }
-        .item-info { padding: 10px; }
-        .item-name { font-weight: bold; margin-bottom: 5px; }
-        .item-price { color: #ff5722; font-weight: bold; }
-        .add-btn { width: 100%; padding: 8px; background: #ff5722; color: white; border: none; border-radius: 5px; margin-top: 10px; }
-        
-        /* 底部购物车 */
-        .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; }
-        .total-price { font-size: 1.2rem; font-weight: bold; }
-        .checkout-btn { background: #333; color: white; padding: 10px 20px; border: none; border-radius: 20px; }
-        
-        /* 老板入口链接 */
-        .admin-link { position: fixed; bottom: 10px; right: 10px; font-size: 12px; color: #ccc; text-decoration: none; opacity: 0.5; }
-    </style>
+    <title>点单页面</title>
 </head>
 <body>
-
-    <header>
-        <h1>☕ 快乐水小卖部</h1>
-        <p>今日特惠：全场半价（假的）</p>
-    </header>
-
-    <div class="menu-container" id="menu"></div>
-
-    <div class="cart-bar">
-        <div>
-            <div>总计:</div>
-            <div class="total-price">¥<span id="total">0</span></div>
-        </div>
-        <button class="checkout-btn" onclick="checkout()">去结算</button>
-    </div>
-
-    <!-- 这是一个隐藏的入口，方便你测试 -->
-    <a href="admin.html" class="admin-link">老板入口</a>
+    <h1>欢迎光临</h1>
+    <input type="text" id="name" placeholder="你的名字">
+    <button onclick="order('咖啡')">点咖啡</button>
+    <button onclick="order('奶茶')">点奶茶</button>
 
     <script>
-        // 1. 商品数据
-        const products = [
-            { id: 1, name: "冰镇可乐", price: 3.5, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300" },
-            { id: 2, name: "招牌奶茶", price: 12.0, img: "https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?w=300" },
-            { id: 3, name: "美味汉堡", price: 18.5, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300" },
-            { id: 4, name: "现磨咖啡", price: 15.0, img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300" }
-        ];
+        // ⚠️ 这里填入你刚才用 cpolar 生成的公网地址
+        const SERVER_URL = "http://xxxxx.cpolar.cn/api/order"; 
 
-        let cart = [];
-
-        // 2. 渲染商品
-        const menuEl = document.getElementById('menu');
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'item-card';
-            card.innerHTML = `
-                <img src="${product.img}" class="item-img">
-                <div class="item-info">
-                    <div class="item-name">${product.name}</div>
-                    <div class="item-price">¥${product.price.toFixed(2)}</div>
-                    <button class="add-btn" onclick="addToCart(${product.id})">加入购物车</button>
-                </div>
-            `;
-            menuEl.appendChild(card);
-        });
-
-        // 3. 加入购物车
-        function addToCart(id) {
-            const product = products.find(p => p.id === id);
-            cart.push(product);
-            updateCart();
-        }
-
-        function updateCart() {
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            document.getElementById('total').innerText = total.toFixed(2);
-        }
-
-        // 4. 结算 (关键修改：使用统一的 Key)
-        function checkout() {
-            if (cart.length === 0) {
-                alert("购物车是空的！");
+        function order(item) {
+            const name = document.getElementById('name').value;
+            if (!name) {
+                alert("请输入名字");
                 return;
             }
 
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const newOrder = {
-                id: Date.now(), // 订单号
-                time: new Date().toLocaleTimeString(),
-                items: [...cart], // 复制一份购物车数据
-                total: total
-            };
-
-            // 核心代码：获取旧订单 -> 加新订单 -> 存回去
-            const oldOrders = JSON.parse(localStorage.getItem('MY_SHOP_ORDERS') || '[]');
-            oldOrders.push(newOrder);
-            localStorage.setItem('MY_SHOP_ORDERS', JSON.stringify(oldOrders));
-
-            alert(`下单成功！\n总计: ¥${total.toFixed(2)}\n请刷新老板页面查看。`);
-            
-            cart = [];
-            updateCart();
+            // 发送数据给手机Python服务器
+            fetch(SERVER_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    item: item,
+                    name: name
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("点单成功！");
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("连接服务器失败，请检查手机服务器是否开启穿透！");
+            });
         }
     </script>
 </body>
