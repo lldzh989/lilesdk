@@ -1,47 +1,244 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>点单页面</title>
+    <title>凛域电竞 | 规则须知</title>
+    <style>
+        /* 全局重置与字体 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #050505;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 243, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 20%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* 动态背景网格 */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(transparent 95%, rgba(0, 243, 255, 0.1) 50%),
+                linear-gradient(90deg, transparent 95%, rgba(0, 243, 255, 0.1) 50%);
+            background-size: 40px 40px;
+            z-index: -1;
+            opacity: 0.3;
+            perspective: 500px;
+            transform: scale(1.2);
+        }
+
+        /* 主容器 - 玻璃拟态风格 */
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: rgba(20, 20, 25, 0.6);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 顶部装饰线 */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00f3ff, #8a2be2, #00f3ff);
+            background-size: 200% 100%;
+            animation: gradientMove 3s linear infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        /* 标题样式 */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #00f3ff, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        /* 内容区块 */
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-left: 3px solid #00f3ff;
+            background: linear-gradient(90deg, rgba(0, 243, 255, 0.05), transparent);
+            border-radius: 0 10px 10px 0;
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateX(5px);
+            background: linear-gradient(90deg, rgba(0, 243, 255, 0.1), transparent);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: #00f3ff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        h2::before {
+            content: '>';
+            margin-right: 10px;
+            color: #fff;
+        }
+
+        /* 列表样式 */
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            color: #ddd;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #8a2be2;
+            box-shadow: 0 0 10px #8a2be2;
+        }
+
+        /* 特殊高亮文字 */
+        .highlight {
+            color: #ff0055;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 0, 85, 0.4);
+        }
+        
+        .reward {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* 管事规则特殊样式 */
+        .manager-section {
+            border-left-color: #8a2be2;
+            background: linear-gradient(90deg, rgba(138, 43, 226, 0.05), transparent);
+        }
+        .manager-section h2 {
+            color: #d68aff;
+        }
+
+        /* 底部 */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.8rem;
+            color: #555;
+            border-top: 1px solid #222;
+            padding-top: 20px;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 25px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>欢迎光临</h1>
-    <input type="text" id="name" placeholder="你的名字">
-    <button onclick="order('咖啡')">点咖啡</button>
-    <button onclick="order('奶茶')">点奶茶</button>
 
-    <script>
-        // ⚠️ 这里填入你刚才用 cpolar 生成的公网地址
-        const SERVER_URL = "http://xxxxx.cpolar.cn/api/order"; 
+    <div class="grid-bg"></div>
 
-        function order(item) {
-            const name = document.getElementById('name').value;
-            if (!name) {
-                alert("请输入名字");
-                return;
-            }
+    <div class="container">
+        <header>
+            <h1>凛域电竞</h1>
+            <div class="subtitle">LY ESPORTS CLUB RULES</div>
+        </header>
 
-            // 发送数据给手机Python服务器
-            fetch(SERVER_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    item: item,
-                    name: name
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert("点单成功！");
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("连接服务器失败，请检查手机服务器是否开启穿透！");
-            });
-        }
-    </script>
+        <!-- 第一部分：核心更新与奖惩 -->
+        <div class="section">
+            <h2>核心公告 & 奖惩制度</h2>
+            <ul>
+                <li><strong>部门更新：</strong>新设立教员部门，专门负责教育与管事培训。</li>
+                <li><strong>管事激励：</strong>管事加入规章制度，违者将面临罚款。</li>
+                <li><strong>月度之星：</strong>每月评选出第一名优秀管事，<span class="reward">获得俱乐部本月利润 5% 的分红</span>。</li>
+                <li><strong>薪资标准：</strong>低于最低标准将扣除工资，高于标准将获得<span class="reward">自由奖励</span>。</li>
+            </ul>
+        </div>
+
+        <!-- 第二部分：管事规则 -->
+        <div class="section manager-section">
+            <h2>管事规则</h2>
+            <ul>
+                <li>沟通机制：会私发教员进行对接与汇报。</li>
+            </ul>
+        </div>
+
+        <!-- 第三部分：最低标准 -->
+        <div class="section">
+            <h2>考核最低标准</h2>
+            <ul>
+                <li><strong>管事指标：</strong>月招 <span class="highlight">20名</span> 有效打手。</li>
+                <li><strong>商家指标：</strong>月发 <span class="highlight">20单</span>。</li>
+                <li>其余指标待定。</li>
+            </ul>
+        </div>
+
+        <footer>
+            &copy; 2026 凛域电竞俱乐部 版权所有
+        </footer>
+    </div>
+
 </body>
 </html>
